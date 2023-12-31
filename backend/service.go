@@ -12,11 +12,12 @@ import (
 
 // Initializes a Datastore client
 func NewDatastoreClient(ctx context.Context) (*datastore.Client, error) {
-	os.Setenv("DATASTORE_DATASET", "project-id")
+	projectId := "my-project-id" //change this to your project id
+	os.Setenv("DATASTORE_DATASET", projectId)
 	os.Setenv("DATASTORE_EMULATOR_HOST", "localhost:8081")
 	os.Setenv("DATASTORE_EMULATOR_HOST_PATH", "localhost:8081/datastore")
 	os.Setenv("DATASTORE_HOST", "http://localhost:8081")
-	os.Setenv("DATASTORE_PROJECT_ID", "project-id")
+	os.Setenv("DATASTORE_PROJECT_ID", projectId)
 	client, err := datastore.NewClient(ctx, "")
 	if err != nil {
 		return nil, err

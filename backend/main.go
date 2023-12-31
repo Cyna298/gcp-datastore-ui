@@ -64,6 +64,22 @@ func GetAllEntitiesRoute(client *datastore.Client) gin.HandlerFunc {
 	}
 }
 
+func CORSMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, Accept, Origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	}
+}
+
 func main() {
 
 	ctx := context.Background()
@@ -73,6 +89,7 @@ func main() {
 	}
 
 	server := gin.Default()
+	server.Use(CORSMiddleware())
 
 	server.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
