@@ -45,6 +45,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { Badge } from "./ui/badge";
 
 export type RespEntity = {
   [key: string]: {
@@ -53,6 +54,37 @@ export type RespEntity = {
     type: string;
     indexed: boolean;
   };
+};
+type BadgeStyled = {
+  label: string;
+  className: string;
+};
+const typesToClassNames: Record<string, BadgeStyled> = {
+  string: {
+    label: "S",
+    className: "bg-blue-500 text-white",
+  },
+  int64: {
+    label: "N",
+    className: "bg-green-500 text-white",
+  },
+  bool: {
+    label: "B",
+    className: "bg-yellow-500 text-black",
+  },
+  "<nil>": {
+    label: "N",
+    className: "bg-red-500 text-white",
+  },
+
+  "time.Time": {
+    label: "T",
+    className: "bg-indigo-500 text-white",
+  },
+  "[]interface {}": {
+    label: "A",
+    className: "bg-indigo-500 text-white",
+  },
 };
 
 function getColumns(entities: RespEntity[]): ColumnDef<RespEntity>[] {
@@ -78,11 +110,22 @@ function getColumns(entities: RespEntity[]): ColumnDef<RespEntity>[] {
       accessorKey: key,
       header: key,
       cell: ({ row }) => {
-        const value = row.original[key]?.value || "N/A";
+        const value = row.original[key]?.value;
+        const type = value ? row.original[key]?.type : null;
+        const badge = type ? typesToClassNames?.[type] : null;
         return (
           <HoverCard>
             <HoverCardTrigger>
-              <div className="truncate max-w-96">{value}</div>
+              <div className="flex items-center space-x-2">
+                <div className="truncate max-w-96">{value || "-"}</div>
+                {badge ? (
+                  <Badge className={`text-xs flex-none ${badge.className}`}>
+                    {badge.label}
+                  </Badge>
+                ) : (
+                  type && <Badge className="text-xs flex-none">{type}</Badge>
+                )}
+              </div>
             </HoverCardTrigger>
             <HoverCardContent className="w-96">{value}</HoverCardContent>
           </HoverCard>
