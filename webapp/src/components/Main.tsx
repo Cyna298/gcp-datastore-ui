@@ -1,11 +1,16 @@
+"use client";
 import ajaxPromise from "@/lib/ajaxPromise";
 import { useQuery } from "@tanstack/react-query";
-import React from "react";
+import React, { useEffect } from "react";
 import { DataTable, RespEntity } from "./DataTable";
 import { Combobox } from "./Combobox";
+import { useRouter, useSearchParams } from "next/navigation";
 
 function Main() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [selectedKind, setSelectedKind] = React.useState<string>("");
+
   const { data: kinds } = useQuery({
     queryKey: ["kinds"],
     queryFn: async () => {
@@ -14,10 +19,27 @@ function Main() {
         "GET",
         null
       );
-      setSelectedKind(resp.data.kinds[0]);
+      if (
+        searchParams.has("kind") &&
+        resp.data.kinds.includes(searchParams.get("kind")!)
+      ) {
+        setSelectedKind(searchParams.get("kind")!);
+      } else {
+        setSelectedKind(resp.data.kinds[0]);
+      }
       return resp.data.kinds;
     },
   });
+
+  useEffect(() => {
+    if (
+      searchParams.has("kind") &&
+      selectedKind !== searchParams.get("kind") &&
+      kinds?.includes(searchParams.get("kind")!)
+    ) {
+      setSelectedKind(searchParams.get("kind")!);
+    }
+  }, [searchParams]);
   const { data, isLoading, isError } = useQuery({
     queryKey: ["getEntities", selectedKind],
     queryFn: async () => {
@@ -41,7 +63,10 @@ function Main() {
     <div>
       <Combobox
         values={kinds || []}
-        setValue={setSelectedKind}
+        setValue={(value: string) => {
+          setSelectedKind(value);
+          router.push(`/?kind=${value}`);
+        }}
         value={selectedKind}
       />
       {data && <DataTable data={data} />}

@@ -40,6 +40,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 export type RespEntity = {
   [key: string]: {
@@ -52,17 +57,40 @@ export type RespEntity = {
 
 function getColumns(entities: RespEntity[]): ColumnDef<RespEntity>[] {
   const columns: ColumnDef<RespEntity>[] = [];
-  const entity = entities[0];
-  for (const attr of Object.values(entity)) {
+  const keysSet = new Set<string>();
+  for (const entity of entities) {
+    for (const key of Object.keys(entity)) {
+      keysSet.add(key);
+    }
+  }
+  const keys = Array.from(keysSet).sort((a, b) => {
+    if (a == "key") {
+      return -1;
+    }
+    if (b == "key") {
+      return 1;
+    }
+
+    return a.localeCompare(b);
+  });
+  keys.forEach((key) => {
     const column: ColumnDef<RespEntity> = {
-      accessorKey: attr.name,
-      header: attr.name,
-      cell: ({ row }) => (
-        <div className="lowercase">{row.original[attr.name]?.value || "-"}</div>
-      ),
+      accessorKey: key,
+      header: key,
+      cell: ({ row }) => {
+        const value = row.original[key]?.value || "N/A";
+        return (
+          <HoverCard>
+            <HoverCardTrigger>
+              <div className="truncate max-w-96">{value}</div>
+            </HoverCardTrigger>
+            <HoverCardContent className="w-96">{value}</HoverCardContent>
+          </HoverCard>
+        );
+      },
     };
     columns.push(column);
-  }
+  });
   return columns;
 }
 export function DataTable({ data }: { data: RespEntity[] }) {

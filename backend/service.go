@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"reflect"
 
 	"cloud.google.com/go/datastore"
 	"google.golang.org/api/iterator"
@@ -53,9 +52,6 @@ func (x *GeneralEntity) Load(ps []datastore.Property) error {
 	*x = make(map[string]OutputProperty)
 
 	for _, p := range ps {
-
-		fmt.Println("p", p)
-		fmt.Println("type", reflect.TypeOf(p.Value))
 		(*x)[p.Name] = OutputProperty{
 			Name:    p.Name,
 			Value:   fmt.Sprintf("%v", p.Value),
@@ -92,12 +88,24 @@ func GetAllEntities(ctx context.Context, client *datastore.Client, kind string, 
 	it := client.Run(ctx, query)
 
 	for {
-		var entity GeneralEntity
-		_, err := it.Next(&entity)
+		var entity GeneralEntity = make(map[string]OutputProperty)
+		key, err := it.Next(&entity)
+
+		entity["key"] = OutputProperty{
+			Name:    "key",
+			Value:   key.String(),
+			TypeOf:  "string",
+			Indexed: true,
+		}
 
 		if err == iterator.Done {
 			break
 		}
+		if err != nil {
+			fmt.Println("err", err)
+			return nil, "", err
+		}
+
 		if err != nil {
 			fmt.Println("err", err)
 			return nil, "", err
