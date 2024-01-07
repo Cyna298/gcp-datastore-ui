@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 
 	"cloud.google.com/go/datastore"
@@ -11,12 +12,22 @@ import (
 
 // Initializes a Datastore client
 func NewDatastoreClient(ctx context.Context) (*datastore.Client, error) {
-	projectId := "my-project-id" //change this to your project id
-	os.Setenv("DATASTORE_DATASET", projectId)
-	os.Setenv("DATASTORE_EMULATOR_HOST", "localhost:8081")
-	os.Setenv("DATASTORE_EMULATOR_HOST_PATH", "localhost:8081/datastore")
-	os.Setenv("DATASTORE_HOST", "http://localhost:8081")
-	os.Setenv("DATASTORE_PROJECT_ID", projectId)
+	if os.Getenv("DATASTORE_DATASET") == "" {
+		log.Fatal("DATASTORE_DATASET environment variable must be set to the project ID")
+	}
+	if os.Getenv("DATASTORE_EMULATOR_HOST") == "" {
+		log.Fatal("DATASTORE_EMULATOR_HOST environment variable must be set to the emulator host")
+	}
+	if os.Getenv("DATASTORE_EMULATOR_HOST_PATH") == "" {
+		log.Fatal("DATASTORE_EMULATOR_HOST_PATH environment variable must be set to the emulator host path")
+	}
+	if os.Getenv("DATASTORE_HOST") == "" {
+		log.Fatal("DATASTORE_HOST environment variable must be set to the datastore host")
+	}
+	if os.Getenv("DATASTORE_PROJECT_ID") == "" {
+		log.Fatal("DATASTORE_PROJECT_ID environment variable must be set to the project ID")
+	}
+
 	client, err := datastore.NewClient(ctx, "")
 	if err != nil {
 		return nil, err

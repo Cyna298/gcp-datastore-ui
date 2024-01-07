@@ -3,11 +3,15 @@ module backend
 go 1.18
 
 require (
+	cloud.google.com/go/datastore v1.8.0
+	github.com/gin-gonic/gin v1.8.1
+	google.golang.org/api v0.84.0
+)
+
+require (
 	cloud.google.com/go v0.102.1 // indirect
 	cloud.google.com/go/compute v1.6.1 // indirect
-	cloud.google.com/go/datastore v1.8.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/gin-gonic/gin v1.8.1 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.11.1 // indirect
@@ -31,7 +35,6 @@ require (
 	golang.org/x/sys v0.1.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
-	google.golang.org/api v0.84.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20220617124728-180714bec0ad // indirect
 	google.golang.org/grpc v1.47.0 // indirect

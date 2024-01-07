@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 
 	"cloud.google.com/go/datastore"
@@ -52,10 +53,6 @@ func GetAllEntitiesRoute(client *datastore.Client) gin.HandlerFunc {
 		//sortKey and sortDirection from query params
 		sortKey := c.Query("sortKey")
 		sortDirection := c.Query("sortDirection")
-
-		fmt.Println("sortKey:", sortKey)
-		fmt.Println("sortDirection:", sortDirection)
-
 		entities, nextCursor, err := GetAllEntities(ctx, client, kind, sortKey, sortDirection, limit, cursor)
 		if err != nil {
 			c.JSON(500, gin.H{
@@ -88,6 +85,13 @@ func CORSMiddleware() gin.HandlerFunc {
 
 func main() {
 
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		log.Fatal("$PORT must be set")
+	}
+	fmt.Println("Starting server on port:", port)
+
 	ctx := context.Background()
 	client, err := NewDatastoreClient(ctx)
 	if err != nil {
@@ -106,6 +110,8 @@ func main() {
 	server.GET("/api/kinds", GetAllKindsRoute(client))
 	server.GET("/api/entities/:kind/", GetAllEntitiesRoute(client))
 
-	server.Run(":8080")
+	if err := server.Run(":" + port); err != nil {
+		log.Fatal("Error starting server: ", err)
+	}
 
 }

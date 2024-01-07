@@ -96,23 +96,28 @@ function Main() {
   if (isError) {
     return <div>Error...</div>;
   }
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <div>
-      <Combobox
-        values={kinds || []}
-        setValue={(value: string) => {
-          setSelectedKind(value);
-          setSortKey("");
-          setSortDirection("");
-          setSelectedPage(0);
-          router.push(`/?kind=${value}`);
-        }}
-        value={selectedKind}
-      />
+      <div className="flex items-center justify-between">
+        <Combobox
+          values={kinds || []}
+          setValue={(value: string) => {
+            setSelectedKind(value);
+            setSortKey("");
+            setSortDirection("");
+            setSelectedPage(0);
+            router.push(`/?kind=${value}`);
+          }}
+          value={selectedKind}
+        />
+        {isLoading && (
+          <div className="flex items-center space-x-2">
+            <p className="text-sm">Loading</p>
+            <ReloadIcon className="h-4 w-4 animate-spin" />
+          </div>
+        )}
+      </div>
       {data && (
         <div className="mt-2">
           <DataTable
@@ -120,6 +125,7 @@ function Main() {
             onSortChange={(sortings) => {
               setSortKey(sortings[0].id);
               setSortDirection(sortings[0].desc ? "desc" : "asc");
+              setSelectedPage(0);
               let path = `/?kind=${selectedKind}&sortKey=${
                 sortings[0].id
               }&sortDirection=${sortings[0].desc ? "desc" : "asc"}`;
