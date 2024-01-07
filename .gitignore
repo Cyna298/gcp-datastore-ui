@@ -8,6 +8,7 @@ webapp/.yarn/install-state.gz
 
 # testing
 /coverage
+.vscode/
 
 # next.js
 webapp/.next/
