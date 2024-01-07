@@ -1,6 +1,32 @@
 # GCP Datastore Emulator UI
 
+<!-- Badges -->
+
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Version](https://img.shields.io/badge/version-0.0.1-blue)
+![Go Version](https://img.shields.io/badge/go-1.21.5-blue)
+![Next.js Version](https://img.shields.io/badge/next.js-14.0.4-blue)
+
 A user-friendly, efficient, and modern UI for the GCP Datastore Emulator, designed for ease of use without compromising on resource efficiency.
+
+<div style="display: flex; justify-content: center; align-items: center">
+<img src="assets/gcp.png" height="40"/>
+<img src="assets/datastore.png" height="60"/>
+</div>
+
+<!-- Table of Contents -->
+
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Key Features](#key-features)
+- [Motivation](#motivation)
+- [Getting Started](#getting-started)
+- [Demo](#demo)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [License](#license)
+- [Support and Contact](#support-and-contact)
 
 ## Introduction
 
@@ -59,6 +85,10 @@ Getting up and running with the GCP Datastore Emulator UI is straightforward. Fo
 We're working towards providing standalone releases of the GCP Datastore Emulator UI. These releases will offer a simplified, one-step setup process, making it easier than ever to get started. Stay tuned for updates!
 
 ---
+
+## Demo
+
+![Demo](assets/demo.gif)
 
 ## 🚀 Roadmap
 
