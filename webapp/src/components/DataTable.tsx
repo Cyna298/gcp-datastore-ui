@@ -97,6 +97,9 @@ function getColumns(entities: RespEntity[]): ColumnDef<RespEntity>[] {
     const column: ColumnDef<RespEntity> = {
       accessorKey: key,
       header: ({ column }) => {
+        if (key === "key") {
+          return <div>{key}</div>;
+        }
         return (
           <Button
             variant="ghost"
@@ -184,6 +187,11 @@ export function DataTable({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    initialState: {
+      pagination: {
+        pageSize: 50,
+      },
+    },
     state: {
       sorting,
       columnFilters,
@@ -194,15 +202,7 @@ export function DataTable({
 
   return (
     <div className="w-full">
-      <div className="flex items-center py-4">
-        {/* <Input
-          placeholder="Filter emails..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        /> */}
+      {/* <div className="flex items-center py-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
@@ -229,10 +229,10 @@ export function DataTable({
               })}
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
-      <div className="rounded-md border">
+      </div> */}
+      <div className="rounded-md border max-h-[80vh] overflow-auto thin-scroll-bar w-full">
         <Table>
-          <TableHeader>
+          <TableHeader className="sticky top-0 bg-background w-full">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
@@ -279,30 +279,6 @@ export function DataTable({
             )}
           </TableBody>
         </Table>
-      </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
-        </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
-        </div>
       </div>
     </div>
   );

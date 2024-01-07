@@ -125,6 +125,9 @@ func GetAllEntities(ctx context.Context, client *datastore.Client, kind string, 
 	if err != nil {
 		return nil, "", err
 	}
+	if limit > len(entities) {
+		return entities, "", nil
+	}
 
 	return entities, nextCursor.String(), nil
 }

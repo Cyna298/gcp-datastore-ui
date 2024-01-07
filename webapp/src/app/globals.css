@@ -123,7 +123,7 @@
 }
 
 .thin-scroll-bar::-webkit-scrollbar-thumb:vertical {
-  background: rgb(232, 232, 232);
+  background: rgb(71, 49, 156);
   border-radius: 4px;
 }
 
@@ -133,6 +133,6 @@
 
 .thin-scroll-bar::-webkit-scrollbar-thumb:hover {
   cursor: grabbing;
-  background: rgb(199, 199, 199);
+  background: rgb(71, 49, 156);
   width: 8px;
 }
