@@ -1,12 +1,5 @@
-"use client";
-
 import * as React from "react";
-import { useQuery } from "@tanstack/react-query";
-import {
-  CaretSortIcon,
-  ChevronDownIcon,
-  DotsHorizontalIcon,
-} from "@radix-ui/react-icons";
+import { CaretSortIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -16,19 +9,14 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
-  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -108,7 +96,26 @@ function getColumns(entities: RespEntity[]): ColumnDef<RespEntity>[] {
   keys.forEach((key) => {
     const column: ColumnDef<RespEntity> = {
       accessorKey: key,
-      header: key,
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            {key}
+            {!column.getIsSorted() ? (
+              <CaretSortIcon className="ml-2 h-4 w-4" />
+            ) : (
+              <ChevronDownIcon
+                className={`ml-2 h-4 w-4 ${
+                  column.getIsSorted() === "asc" ? "transform rotate-180" : ""
+                }`}
+              />
+            )}
+          </Button>
+        );
+      },
+
       cell: ({ row }) => {
         const value = row.original[key]?.value;
         const type = value ? row.original[key]?.type : null;
@@ -127,7 +134,9 @@ function getColumns(entities: RespEntity[]): ColumnDef<RespEntity>[] {
                 )}
               </div>
             </HoverCardTrigger>
-            <HoverCardContent className="w-96">{value}</HoverCardContent>
+            <HoverCardContent className="w-full" align="start">
+              <div className="flex flex-wrap">{value}</div>
+            </HoverCardContent>
           </HoverCard>
         );
       },
@@ -136,8 +145,18 @@ function getColumns(entities: RespEntity[]): ColumnDef<RespEntity>[] {
   });
   return columns;
 }
-export function DataTable({ data }: { data: RespEntity[] }) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+export function DataTable({
+  data,
+  onSortChange,
+  defaultSorting,
+}: {
+  data: RespEntity[];
+  onSortChange: (sortingState: SortingState) => void;
+  defaultSorting?: SortingState;
+}) {
+  const [sorting, setSorting] = React.useState<SortingState>(
+    defaultSorting ?? []
+  );
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
@@ -150,11 +169,18 @@ export function DataTable({ data }: { data: RespEntity[] }) {
   const table = useReactTable({
     data: data ?? [],
     columns: columns,
-    onSortingChange: setSorting,
+    onSortingChange: (sortFn) => {
+      //check if sorting is callable
+      if (typeof sortFn === "function") {
+        onSortChange(sortFn(sorting));
+      }
+
+      setSorting(sortFn);
+    },
+    manualSorting: true,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,

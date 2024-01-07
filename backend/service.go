@@ -74,8 +74,16 @@ func (x *GeneralEntity) Save() ([]datastore.Property, error) {
 }
 
 // GetAllEntities retrieves entities of a specific kind from Datastore
-func GetAllEntities(ctx context.Context, client *datastore.Client, kind string, limit int, cursorStr string) ([]GeneralEntity, string, error) {
+func GetAllEntities(ctx context.Context, client *datastore.Client, kind string, sortKey string, sortDirection string, limit int, cursorStr string) ([]GeneralEntity, string, error) {
 	query := datastore.NewQuery(kind).Limit(limit)
+	if sortKey != "" {
+		if sortDirection == "desc" {
+			query = query.Order("-" + sortKey)
+
+		} else {
+			query = query.Order(sortKey)
+		}
+	}
 	if cursorStr != "" {
 		cursor, err := datastore.DecodeCursor(cursorStr)
 		if err != nil {

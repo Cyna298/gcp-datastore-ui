@@ -1,0 +1,9 @@
+- [x] Basic table view with type badges
+- [x] Sorting
+- [ ] Pagination
+- [ ] Better build process
+- [ ] V0.1.0 release
+- [ ] Edit Form/ Detail View (modal?)
+- [ ] Dealing with nested entities
+- [ ] Navigation to other entities/ parent entities
+- [ ] Replace tanstack/table with simple table

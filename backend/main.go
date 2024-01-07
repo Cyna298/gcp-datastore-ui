@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"strconv"
@@ -50,7 +49,14 @@ func GetAllEntitiesRoute(client *datastore.Client) gin.HandlerFunc {
 		}
 		cursor := c.Query("cursor")
 
-		entities, nextCursor, err := GetAllEntities(ctx, client, kind, limit, cursor)
+		//sortKey and sortDirection from query params
+		sortKey := c.Query("sortKey")
+		sortDirection := c.Query("sortDirection")
+
+		fmt.Println("sortKey:", sortKey)
+		fmt.Println("sortDirection:", sortDirection)
+
+		entities, nextCursor, err := GetAllEntities(ctx, client, kind, sortKey, sortDirection, limit, cursor)
 		if err != nil {
 			c.JSON(500, gin.H{
 				"error": err,
@@ -101,20 +107,5 @@ func main() {
 	server.GET("/api/entities/:kind/", GetAllEntitiesRoute(client))
 
 	server.Run(":8080")
-
-	kinds, err := GetAllKinds(ctx, client)
-	if err != nil {
-		log.Fatalf("Failed to get kinds: %v", err)
-	}
-	fmt.Println("Kinds:", kinds)
-
-	entities, nextCursor, err := GetAllEntities(ctx, client, "User", 10, "")
-	if err != nil {
-		log.Fatalf("Failed to get entities: %v", err)
-	}
-
-	entitiesJSON, _ := json.Marshal(entities)
-	fmt.Println("Entities:", string(entitiesJSON))
-	fmt.Println("Next cursor:", nextCursor)
 
 }

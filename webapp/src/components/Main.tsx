@@ -10,6 +10,8 @@ function Main() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [selectedKind, setSelectedKind] = React.useState<string>("");
+  const [sortKey, setSortKey] = React.useState<string>("");
+  const [sortDirection, setSortDirection] = React.useState<string>("");
 
   const { data: kinds } = useQuery({
     queryKey: ["kinds"],
@@ -39,12 +41,24 @@ function Main() {
     ) {
       setSelectedKind(searchParams.get("kind")!);
     }
+    if (
+      searchParams.has("sortKey") &&
+      sortKey !== searchParams.get("sortKey")!
+    ) {
+      setSortKey(searchParams.get("sortKey")!);
+    }
+    if (
+      searchParams.has("sortDirection") &&
+      sortDirection !== searchParams.get("sortDirection")!
+    ) {
+      setSortDirection(searchParams.get("sortDirection")!);
+    }
   }, [searchParams]);
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["getEntities", selectedKind],
+    queryKey: ["getEntities", selectedKind, sortKey, sortDirection],
     queryFn: async () => {
       const resp = await ajaxPromise<{ entities: RespEntity[] }>(
-        `/api/entities/${selectedKind}/`,
+        `/api/entities/${selectedKind}/?sortKey=${sortKey}&sortDirection=${sortDirection}`,
         "GET",
         null
       );
@@ -65,11 +79,35 @@ function Main() {
         values={kinds || []}
         setValue={(value: string) => {
           setSelectedKind(value);
+          setSortKey("");
+          setSortDirection("");
           router.push(`/?kind=${value}`);
         }}
         value={selectedKind}
       />
-      {data && <DataTable data={data} />}
+      {data && (
+        <DataTable
+          data={data}
+          onSortChange={(sortings) => {
+            setSortKey(sortings[0].id);
+            setSortDirection(sortings[0].desc ? "desc" : "asc");
+            let path = `/?kind=${selectedKind}&sortKey=${
+              sortings[0].id
+            }&sortDirection=${sortings[0].desc ? "desc" : "asc"}`;
+            router.push(path);
+          }}
+          defaultSorting={
+            sortKey && sortDirection
+              ? [
+                  {
+                    id: sortKey,
+                    desc: sortDirection === "desc",
+                  },
+                ]
+              : undefined
+          }
+        />
+      )}
     </div>
   );
 }
