@@ -54,15 +54,13 @@ check-and-copy-out:
 	fi
 
 run-backend: check-and-copy-out
-run-backend: export PORT = $(SERVER_PORT)
-run-backend: export DATASTORE_DATASET = $(PROJECT_ID)
-run-backend: export DATASTORE_EMULATOR_HOST = localhost:$(EMU_PORT)
-run-backend: export DATASTORE_EMULATOR_HOST_PATH = localhost:$(EMU_PORT)/datastore
-run-backend: export DATASTORE_HOST = http://localhost:$(EMU_PORT)
-run-backend: export DATASTORE_PROJECT_ID = $(PROJECT_ID)
 run-backend:
 	@echo "Starting the backend server on port $(PORT)..."
-	cd $(BACKEND_PATH) && go run .
+	cd $(BACKEND_PATH) && go run . -port $(SERVER_PORT)\
+		-project $(PROJECT_ID)\
+		-emuHost localhost:$(EMU_PORT)\
+		-emuHostPath localhost:$(EMU_PORT)/datastore\
+		-dsHost http://localhost:$(EMU_PORT)
 
 run-frontend:
 	@echo "Starting the frontend server..."

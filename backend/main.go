@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -18,11 +19,6 @@ func frontendRouting(server *gin.Engine) {
 	server.StaticFile("/vercel.svg", "./out/vercel.svg")
 }
 
-//	func frontendRouting(server *gin.Engine) {
-//		server.Static("/assets", "./dist/assets")
-//		server.StaticFile("/", "./dist/index.html")
-//		server.StaticFile("/vite.svg", "./dist/vite.svg")
-//	}
 func GetAllKindsRoute(client *datastore.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
@@ -83,13 +79,38 @@ func CORSMiddleware() gin.HandlerFunc {
 	}
 }
 
+func usage() {
+	fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
+	flag.PrintDefaults()
+}
+
 func main() {
 
-	port := os.Getenv("PORT")
-
-	if port == "" {
-		log.Fatal("$PORT must be set")
+	files, err := content.ReadDir("out")
+	if err != nil {
+		fmt.Println("Error reading embedded directory:", err)
+	} else {
+		fmt.Println("Files in embedded directory:")
+		for _, file := range files {
+			fmt.Println(" - ", file.Name())
+		}
 	}
+	port := flag.String("port", "8080", "Port for the emulator")
+	projectId := flag.String("project", "my-project", "Project ID for the emulator")
+	emulatorHost := flag.String("emuHost", "localhost:8081", "Host for the emulator")
+	emulatorHostPath := flag.String("emuHostPath", "localhost:8081/datastore", "Host path for the emulator")
+	datastoreHost := flag.String("dsHost", "http://localhost:8081", "Host for the datastore")
+
+	flag.Usage = usage
+
+	flag.Parse()
+
+	os.Setenv("DATASTORE_DATASET", *projectId)
+	os.Setenv("DATASTORE_EMULATOR_HOST", *emulatorHost)
+	os.Setenv("DATASTORE_EMULATOR_HOST_PATH", *emulatorHostPath)
+	os.Setenv("DATASTORE_HOST", *datastoreHost)
+	os.Setenv("DATASTORE_PROJECT_ID", *projectId)
+
 	fmt.Println("Starting server on port:", port)
 
 	ctx := context.Background()
@@ -110,7 +131,7 @@ func main() {
 	server.GET("/api/kinds", GetAllKindsRoute(client))
 	server.GET("/api/entities/:kind/", GetAllEntitiesRoute(client))
 
-	if err := server.Run(":" + port); err != nil {
+	if err := server.Run(":" + *port); err != nil {
 		log.Fatal("Error starting server: ", err)
 	}
 
