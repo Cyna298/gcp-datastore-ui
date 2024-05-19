@@ -5,7 +5,7 @@ PKG_MANAGER ?= pnpm
 # CAUTION: The server port is also used in the frontend ajaxPromise.ts file, make sure to change it there as well if you change it here and rebuild the frontend. This should be a smooth process in the future.
 SERVER_PORT ?= 8080
 EMU_PORT ?= 8081
-PROJECT_ID ?= project-id
+PROJECT_ID ?= exactbuyer-api-staging
 
 # Paths
 BACKEND_PATH := backend
@@ -68,7 +68,7 @@ run-frontend:
 
 build-backend:
 	@echo "Building the backend application..."
-	cd $(BACKEND_PATH) && go build -o bin/service .
+	cd $(BACKEND_PATH) && export GIN_MODE=release && go build -o bin/service .
 
 build-frontend:
 	@echo "Building the frontend application..."
@@ -84,3 +84,20 @@ clean-run:
 	@cp -r $(FRONTEND_PATH)/out $(BACKEND_PATH)/
 
 setup: setup-backend setup-frontend check-and-copy-out
+
+clean:
+	@echo "Cleaning up previous builds..."
+	@rm -rf $(BACKEND_PATH)/release
+	@rm -f $(BACKEND_PATH)/release.zip
+
+build-release: clean build-frontend
+build-release:
+	@echo "Building Release"
+	@echo "Building the backend application..."
+	@mkdir -p $(BACKEND_PATH)/release
+	@cd $(BACKEND_PATH) && export GIN_MODE=release && go build -o release/service .
+	@echo "Copying out directory from frontend to release..."
+	@cp -r $(FRONTEND_PATH)/out $(BACKEND_PATH)/release
+	@echo "Creating release archive..."
+	@cd $(BACKEND_PATH) && zip -r release.zip release
+	@echo "Release build complete. Archive created at $(BACKEND_PATH)/release.zip"

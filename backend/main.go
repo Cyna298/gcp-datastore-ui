@@ -85,16 +85,6 @@ func usage() {
 }
 
 func main() {
-
-	files, err := content.ReadDir("out")
-	if err != nil {
-		fmt.Println("Error reading embedded directory:", err)
-	} else {
-		fmt.Println("Files in embedded directory:")
-		for _, file := range files {
-			fmt.Println(" - ", file.Name())
-		}
-	}
 	port := flag.String("port", "8080", "Port for the emulator")
 	projectId := flag.String("project", "my-project", "Project ID for the emulator")
 	emulatorHost := flag.String("emuHost", "localhost:8081", "Host for the emulator")

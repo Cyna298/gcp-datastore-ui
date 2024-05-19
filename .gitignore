@@ -38,3 +38,4 @@ webapp/next-env.d.ts
 
 backend/out
 backend/bin
+backend/release
