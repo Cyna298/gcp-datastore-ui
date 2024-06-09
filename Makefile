@@ -56,11 +56,18 @@ check-and-copy-out:
 run-backend: check-and-copy-out
 run-backend:
 	@echo "Starting the backend server on port $(PORT)..."
-	cd $(BACKEND_PATH) && go run . -port $(SERVER_PORT)\
-		-project $(PROJECT_ID)\
-		-emuHost localhost:$(EMU_PORT)\
-		-emuHostPath localhost:$(EMU_PORT)/datastore\
-		-dsHost http://localhost:$(EMU_PORT)
+	cd $(BACKEND_PATH) && templ generate
+	cd $(BACKEND_PATH) && tailwindcss -o public/styles.css
+	cd $(BACKEND_PATH) && air --build.cmd "go build -o bin/service" --build.bin "bin/service --port $(SERVER_PORT)\
+		--project $(PROJECT_ID)\
+		--emuHost localhost:$(EMU_PORT)\
+		--emuHostPath localhost:$(EMU_PORT)/datastore\
+		--dsHost http://localhost:$(EMU_PORT)"
+	# cd $(BACKEND_PATH) && go run . -port $(SERVER_PORT)\
+	# 	-project $(PROJECT_ID)\
+	# 	-emuHost localhost:$(EMU_PORT)\
+	# 	-emuHostPath localhost:$(EMU_PORT)/datastore\
+	# 	-dsHost http://localhost:$(EMU_PORT)
 
 run-frontend:
 	@echo "Starting the frontend server..."
@@ -69,6 +76,11 @@ run-frontend:
 build-backend:
 	@echo "Building the backend application..."
 	cd $(BACKEND_PATH) && export GIN_MODE=release && go build -o bin/service .
+
+templ:
+	templ generate --watch --proxy="http://localhost:3000"
+tailwind:
+	tailwindcss -o public/styles.css --watch
 
 build-frontend:
 	@echo "Building the frontend application..."
