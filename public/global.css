@@ -1,0 +1,29 @@
+
+.overview-scroll-bar::-webkit-scrollbar {
+  height: 5px;
+  width: 6px;
+  background: inherit;
+}
+
+.overview-scroll-bar::-webkit-scrollbar-thumb:horizontal {
+  background: #eaeced;
+  opacity: 0.75;
+  border-radius: 4px;
+}
+
+.overview-scroll-bar::-webkit-scrollbar-thumb:vertical {
+  background: #eaeced;
+  border-radius: 4px;
+  opacity: 0.75;
+}
+
+.overview-scroll-bar::-webkit-scrollbar-thumb:vertical:hover {
+  cursor: grabbing;
+}
+
+.overview-scroll-bar::-webkit-scrollbar-thumb:hover {
+  cursor: grabbing;
+  background: #b9bbbf;
+  opacity: 0.75;
+  width: 8px;
+}
