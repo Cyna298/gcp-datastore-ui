@@ -55,42 +55,9 @@ func GetAllKinds(ctx context.Context, client *datastore.Client) ([]string, error
 	return kinds, nil
 }
 
-type Prop struct {
-	Repr []string `datastore:"property_representation"`
-}
 type TableHeader struct {
 	Name string
-	Type []string
-}
-
-func GetAttrs(ctx context.Context, client *datastore.Client, kind string) ([]TableHeader, error) {
-	kindKey := datastore.NameKey("__kind__", kind, nil)
-	query := datastore.NewQuery("__property__").Ancestor(kindKey)
-
-	var props []Prop
-	keys, err := client.GetAll(ctx, query, &props)
-
-	if err != nil {
-		return nil, err
-	}
-
-	headers := make([]TableHeader, len(props)+1)
-
-	headers[0] = TableHeader{
-		Name: "key",
-		Type: []string{"*datastore.Key"},
-	}
-	for i, prop := range props {
-		if i < len(keys) { // Ensure there is a corresponding key for each prop
-			headers[i+1] = TableHeader{
-				Name: keys[i].Name, // Assuming key.Name is the name you want to zip with prop.Repr
-				Type: prop.Repr,
-			}
-		}
-	}
-
-	return headers, nil
-
+	Type string
 }
 
 type OutputProperty struct {
@@ -117,9 +84,13 @@ func (x *GeneralEntity) Load(ps []datastore.Property) error {
 		var value interface{} = p.Value
 		if e, ok := p.Value.(*datastore.Entity); ok {
 			// Convert nested entity to GeneralEntity
+
+			fmt.Println("Start NESTED Entity------------------------------\n")
 			nestedEntity := GeneralEntity{}
 			nestedEntity.Load(e.Properties)
 			value = nestedEntity
+
+			fmt.Println("End NESTED Entity------------------------------\n")
 		}
 		(*x)[p.Name] = OutputProperty{
 			Name:    p.Name,
@@ -204,6 +175,13 @@ func (ge GeneralEntity) GetValue(name string) (interface{}, error) {
 
 func (ge GeneralEntity) GetString(name string) (string, error) {
 	value, err := ge.GetValue(name)
+
+	fmt.Println("\nGET STRING Start------------------------------")
+	fmt.Println(value)
+	fmt.Println(err)
+	fmt.Println(fmt.Sprintf("%T", value))
+
+	fmt.Println("GET STRING End---------------------------------\n")
 	if err != nil {
 		return "", err
 	}
@@ -229,19 +207,17 @@ func (ge GeneralEntity) GetString(name string) (string, error) {
 		fmt.Println("Entity")
 
 		fmt.Println(value.(*datastore.Entity))
-		return "SDS", nil
+		return "NOT IMPLEMENTED FOR ENTITY", nil
 		// return fmt.Sprintf("Entity with Kind: %s", v.Key.Kind), nil // Simplistic representation
 	case GeneralEntity:
 		// nestedVal, err := v.GetValue()
 		// fmt.Println("nested Val")
-		// fmt.Println(nestedVal)
 		//
 		// fmt.Println("nested Val err")
 		// fmt.Println(err)
 		// if err != nil {
 		// 	return "", err
 		// }
-		// return nestedVal.(GeneralEntity).GetString(name)
 		return fmt.Sprintf("%s", value), nil
 
 	case []interface{}:
@@ -263,26 +239,55 @@ func (ge GeneralEntity) GetString(name string) (string, error) {
 func stringifyInterface(v interface{}) (string, error) {
 	switch v := v.(type) {
 	case int64:
+		fmt.Println("INT")
 		return strconv.FormatInt(v, 10), nil
 	case bool:
+
+		fmt.Println("BOOL")
 		return strconv.FormatBool(v), nil
 	case string:
+
+		fmt.Println("STR")
 		return v, nil
 	case float64:
+
+		fmt.Println("FL")
 		return strconv.FormatFloat(v, 'f', -1, 64), nil
 	case *datastore.Key:
+
+		fmt.Println("KEy")
 		return v.String(), nil
 	case time.Time:
+
+		fmt.Println("Time")
 		return v.Format(time.RFC3339), nil
 	case datastore.GeoPoint:
+		fmt.Println("point")
 		return fmt.Sprintf("Lat: %f, Lng: %f", v.Lat, v.Lng), nil
 	case []byte:
+
+		fmt.Println("Byte")
 		return base64.StdEncoding.EncodeToString(v), nil
 	case *datastore.Entity:
+
+		fmt.Println("Entity")
+		if v == nil {
+			return "", nil
+		}
+
+		if v.Key == nil {
+			return "", nil
+		}
 		return fmt.Sprintf("Entity with Kind: %s", v.Key.Kind), nil
 	case nil:
 		return "NULL", nil
+	case []interface{}:
+
+		fmt.Println("INTE")
+		return "Yee", nil
 	default:
+
+		fmt.Println("DEF")
 		return "", fmt.Errorf("unsupported type %s in array", reflect.TypeOf(v))
 	}
 }
@@ -291,7 +296,6 @@ func (ge GeneralEntity) ToDisplayEntity() (DisplayEntity, error) {
 	for key, outputProp := range ge {
 		stringValue, err := ge.GetString(key)
 		if err != nil {
-			// You can decide to either return an error or simply log it and continue processing other properties.
 			return nil, fmt.Errorf("Display error converting key %s to string: %s", key, err)
 		}
 		de[key] = DisplayProperty{
@@ -345,6 +349,10 @@ func GetAllEntities(ctx context.Context, client *datastore.Client, kind string, 
 		}
 
 		ds, err := entity.ToDisplayEntity()
+
+		fmt.Println("\nStart EEEE")
+		fmt.Println(ds)
+		fmt.Println("END EEEE\n")
 
 		if err != nil {
 			fmt.Println("err", err)

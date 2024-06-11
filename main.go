@@ -12,75 +12,7 @@ import (
 	"os"
 
 	"cloud.google.com/go/datastore"
-	"github.com/gin-gonic/gin"
 )
-
-func frontendRouting(server *gin.Engine) {
-	server.Static("/_next", "./out/_next")
-	server.StaticFile("/", "./out/index.html")
-	server.StaticFile("/next.svg", "./out/next.svg")
-	server.StaticFile("/vercel.svg", "./out/vercel.svg")
-}
-
-// func GetAllKindsRoute(client *datastore.Client) gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		ctx := context.Background()
-// 		kinds, err := GetAllKinds(ctx, client)
-// 		if err != nil {
-// 			c.JSON(500, gin.H{
-// 				"error": err,
-// 			})
-// 			return
-// 		}
-// 		c.JSON(200, gin.H{
-// 			"kinds": kinds,
-// 		})
-// 	}
-// }
-
-// func GetAllEntitiesRoute(client *datastore.Client) gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		ctx := context.Background()
-// 		kind := c.Param("kind")
-// 		//limit and cursor from query params
-// 		limit, err := strconv.Atoi(c.Query("limit"))
-// 		if err != nil {
-// 			limit = 10
-// 		}
-// 		cursor := c.Query("cursor")
-//
-// 		//sortKey and sortDirection from query params
-// 		sortKey := c.Query("sortKey")
-// 		sortDirection := c.Query("sortDirection")
-// 		entities, nextCursor, err := GetAllEntities(ctx, client, kind, sortKey, sortDirection, limit, cursor)
-// 		if err != nil {
-// 			c.JSON(500, gin.H{
-// 				"error": err,
-// 			})
-// 			return
-// 		}
-// 		c.JSON(200, gin.H{
-// 			"entities":   entities,
-// 			"nextCursor": nextCursor,
-// 		})
-// 	}
-// }
-
-func CORSMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, Accept, Origin, Cache-Control, X-Requested-With")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
-
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
-
-		c.Next()
-	}
-}
 
 type APIServer struct {
 	listenAddr string
@@ -111,7 +43,10 @@ func WriteJSON(w http.ResponseWriter, status int, value any) {
 func makeHttpHandler(f ApiFunc) http.HandlerFunc {
 	// log the endpoint
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Println(r.Method, r.URL.Path)
+
+		fmt.Println("\n\n---------------------------------------------")
+		fmt.Println(r.Method, r.URL.Path)
+		fmt.Println("---------------------------------------------]\n")
 
 		if err := f(w, r); err != nil {
 			WriteJSON(w, http.StatusBadRequest, HttpError{
@@ -135,20 +70,33 @@ func (as *APIServer) Detail(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	props, err := service.GetAttrs(r.Context(), as.client, entity)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("ENTITIES")
+	headers := make(map[string]service.TableHeader)
 
 	for _, e := range entities {
-		fmt.Println(e)
-		fmt.Println("\n\n")
+		for _, x := range e {
+			fmt.Println(x)
+			if _, ok := headers[x.Name]; !ok {
+				headers[x.Name] = service.TableHeader{
+					Name: x.Name,
+					Type: x.TypeOf,
+				}
 
+			}
+
+		}
+	}
+	headerValues := make([]service.TableHeader, len(headers))
+	i := 0
+	for _, e := range headers {
+		if e.Name == "key" {
+			headerValues[0] = e
+		} else {
+			headerValues[i+1] = e
+			i += 1
+		}
 	}
 
-	view.Entities(props, entities).Render(r.Context(), w)
+	view.Entities(headerValues, entities).Render(r.Context(), w)
 	return nil
 }
 
@@ -188,9 +136,5 @@ func main() {
 	router.HandleFunc("/", makeHttpHandler(as.ServeTempl))
 	router.HandleFunc("/detail", makeHttpHandler(as.Detail))
 	http.ListenAndServe("localhost:8080", router)
-
-	// if err := server.Run(":" + *port); err != nil {
-	// 	log.Fatal("Error starting server: ", err)
-	// }
 
 }
