@@ -2,7 +2,7 @@ package view
 
 import "backend/service"
 
-templ Table(headers []service.TableHeader, data []service.DisplayEntity) {
+templ Table(headers []service.TableHeader, data []service.GeneralEntity) {
 	<table class="border-separate border-spacing-0">
 		<thead>
 			<tr>
@@ -23,7 +23,7 @@ templ Table(headers []service.TableHeader, data []service.DisplayEntity) {
 						<td
 							class="whitespace-nowrap border-b border-gray-200 py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-6 lg:pl-8 max-w-96 overflow-auto overview-scroll-bar"
 						>
-							{ e[h.Name].Value }
+							{ e.GetString(h.Name) }
 						</td>
 					}
 				</tr>
@@ -33,7 +33,7 @@ templ Table(headers []service.TableHeader, data []service.DisplayEntity) {
 	</table>
 }
 
-templ Entities(headers []service.TableHeader, data []service.DisplayEntity) {
+templ Entities(headers []service.TableHeader, data []service.GeneralEntity) {
 	<html class="bg-gray-900">
 		<head>
 			<title>Datastore</title>

@@ -67,15 +67,7 @@ type OutputProperty struct {
 	Indexed bool        `json:"indexed"`
 }
 
-type DisplayProperty struct {
-	Name    string `json:"name"`
-	Value   string `json:"value"`
-	TypeOf  string `json:"type"`
-	Indexed bool   `json:"indexed"`
-}
-
 type GeneralEntity map[string]OutputProperty
-type DisplayEntity map[string]DisplayProperty
 
 func (x *GeneralEntity) Load(ps []datastore.Property) error {
 	*x = make(map[string]OutputProperty)
@@ -123,17 +115,7 @@ func (x *GeneralEntity) Save() ([]datastore.Property, error) {
 	}, nil
 }
 
-func (ge GeneralEntity) GetValue(name string) (interface{}, error) {
-	prop, ok := ge[name]
-	if !ok {
-
-		fmt.Println("Start Prop------------------------------\n")
-		fmt.Println(ge)
-
-		fmt.Println("End---------------------------------\n")
-		return nil, fmt.Errorf("property %s not found", name)
-	}
-
+func (ge GeneralEntity) GetValue(prop OutputProperty) (interface{}, error) {
 	fmt.Println("Start------------------------------\n")
 	fmt.Println(prop.Name)
 	fmt.Println(prop.TypeOf)
@@ -169,12 +151,16 @@ func (ge GeneralEntity) GetValue(name string) (interface{}, error) {
 	case "<nil>":
 		return nil, nil
 	default:
-		return nil, fmt.Errorf("unsupported type %s for property %s", prop.TypeOf, name)
+		return nil, fmt.Errorf("unsupported type %s for property %s", prop.TypeOf, prop.Name)
 	}
 }
 
 func (ge GeneralEntity) GetString(name string) (string, error) {
-	value, err := ge.GetValue(name)
+	prop, ok := ge[name]
+	if !ok {
+		return "", nil
+	}
+	value, err := ge.GetValue(prop)
 
 	fmt.Println("\nGET STRING Start------------------------------")
 	fmt.Println(value)
@@ -291,25 +277,9 @@ func stringifyInterface(v interface{}) (string, error) {
 		return "", fmt.Errorf("unsupported type %s in array", reflect.TypeOf(v))
 	}
 }
-func (ge GeneralEntity) ToDisplayEntity() (DisplayEntity, error) {
-	de := make(DisplayEntity)
-	for key, outputProp := range ge {
-		stringValue, err := ge.GetString(key)
-		if err != nil {
-			return nil, fmt.Errorf("Display error converting key %s to string: %s", key, err)
-		}
-		de[key] = DisplayProperty{
-			Name:    outputProp.Name,
-			Value:   stringValue,
-			TypeOf:  outputProp.TypeOf,
-			Indexed: outputProp.Indexed,
-		}
-	}
-	return de, nil
-}
 
 // GetAllEntities retrieves entities of a specific kind from Datastore
-func GetAllEntities(ctx context.Context, client *datastore.Client, kind string, sortKey string, sortDirection string, limit int, cursorStr string) ([]DisplayEntity, string, error) {
+func GetAllEntities(ctx context.Context, client *datastore.Client, kind string, sortKey string, sortDirection string, limit int, cursorStr string) ([]GeneralEntity, string, error) {
 	query := datastore.NewQuery(kind).Limit(limit)
 	if sortKey != "" {
 		if sortDirection == "desc" {
@@ -327,7 +297,7 @@ func GetAllEntities(ctx context.Context, client *datastore.Client, kind string, 
 		query = query.Start(cursor)
 	}
 
-	var entities []DisplayEntity
+	var entities []GeneralEntity
 	it := client.Run(ctx, query)
 
 	for {
@@ -348,17 +318,7 @@ func GetAllEntities(ctx context.Context, client *datastore.Client, kind string, 
 			return nil, "", err
 		}
 
-		ds, err := entity.ToDisplayEntity()
-
-		fmt.Println("\nStart EEEE")
-		fmt.Println(ds)
-		fmt.Println("END EEEE\n")
-
-		if err != nil {
-			fmt.Println("err", err)
-			return nil, "", err
-		}
-		entities = append(entities, ds)
+		entities = append(entities, entity)
 	}
 
 	nextCursor, err := it.Cursor()

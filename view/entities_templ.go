@@ -12,7 +12,7 @@ import "bytes"
 
 import "backend/service"
 
-func Table(headers []service.TableHeader, data []service.DisplayEntity) templ.Component {
+func Table(headers []service.TableHeader, data []service.GeneralEntity) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -25,12 +25,12 @@ func Table(headers []service.TableHeader, data []service.DisplayEntity) templ.Co
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<table class=\"border-separate border-spacing-0\"><thead><tr>")
+		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 1)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, header := range headers {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<th scope=\"col\" class=\"sticky top-0 z-10 border-b border-gray-300  bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm  text-white backdrop-blur backdrop-filter sm:pl-6 lg:pl-8\">")
+			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 2)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -43,45 +43,45 @@ func Table(headers []service.TableHeader, data []service.DisplayEntity) templ.Co
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</th>")
+			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 3)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</tr></thead> <tbody>")
+		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 4)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, e := range data {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<tr>")
+			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 5)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, h := range headers {
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<td class=\"whitespace-nowrap border-b border-gray-200 py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-6 lg:pl-8 max-w-96 overflow-auto overview-scroll-bar\">")
+				templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 6)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var3 string
-				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(e[h.Name].Value)
+				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(e.GetString(h.Name))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/entities.templ`, Line: 26, Col: 24}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `view/entities.templ`, Line: 26, Col: 28}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td>")
+				templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 7)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</tr>")
+			templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 8)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!-- More people... --></tbody></table>")
+		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 9)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -92,7 +92,7 @@ func Table(headers []service.TableHeader, data []service.DisplayEntity) templ.Co
 	})
 }
 
-func Entities(headers []service.TableHeader, data []service.DisplayEntity) templ.Component {
+func Entities(headers []service.TableHeader, data []service.GeneralEntity) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -105,7 +105,7 @@ func Entities(headers []service.TableHeader, data []service.DisplayEntity) templ
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<html class=\"bg-gray-900\"><head><title>Datastore</title><link rel=\"stylesheet\" href=\"/public/styles.css\"><link rel=\"stylesheet\" href=\"/public/global.css\"></head><body><div class=\"px-4 sm:px-6 lg:px-8\"><div class=\"mt-8 flow-root\"><div class=\"-mx-4 -my-2 sm:-mx-6 lg:-mx-8 overflow-auto overview-scroll-bar\"><div class=\"inline-block min-w-full py-2 align-middle\">")
+		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 10)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -113,7 +113,7 @@ func Entities(headers []service.TableHeader, data []service.DisplayEntity) templ
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div></div></div></body></html>")
+		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 11)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
