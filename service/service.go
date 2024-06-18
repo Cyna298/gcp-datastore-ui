@@ -163,6 +163,7 @@ func (ge GeneralEntity) GetString(name string) (string, error) {
 	value, err := ge.GetValue(prop)
 
 	fmt.Println("\nGET STRING Start------------------------------")
+	fmt.Println(name)
 	fmt.Println(value)
 	fmt.Println(err)
 	fmt.Println(fmt.Sprintf("%T", value))
@@ -178,6 +179,9 @@ func (ge GeneralEntity) GetString(name string) (string, error) {
 	case bool:
 		return strconv.FormatBool(v), nil
 	case string:
+		if v == "" {
+			return "\"\"", nil
+		}
 		return v, nil
 	case float64:
 		return strconv.FormatFloat(v, 'f', -1, 64), nil
@@ -190,20 +194,17 @@ func (ge GeneralEntity) GetString(name string) (string, error) {
 	case []byte:
 		return string(v), nil // May need to encode to base64 if binary data
 	case *datastore.Entity:
-		fmt.Println("Entity")
+		fmt.Println("Getting string for Entity")
 
 		fmt.Println(value.(*datastore.Entity))
 		return "NOT IMPLEMENTED FOR ENTITY", nil
 		// return fmt.Sprintf("Entity with Kind: %s", v.Key.Kind), nil // Simplistic representation
 	case GeneralEntity:
-		// nestedVal, err := v.GetValue()
-		// fmt.Println("nested Val")
-		//
-		// fmt.Println("nested Val err")
-		// fmt.Println(err)
-		// if err != nil {
-		// 	return "", err
-		// }
+		value, err := stringifyInterface(v)
+		if err != nil {
+			return "", fmt.Errorf("Error in GeneralEntity")
+
+		}
 		return fmt.Sprintf("%s", value), nil
 
 	case []interface{}:
@@ -255,16 +256,48 @@ func stringifyInterface(v interface{}) (string, error) {
 		fmt.Println("Byte")
 		return base64.StdEncoding.EncodeToString(v), nil
 	case *datastore.Entity:
-
-		fmt.Println("Entity")
+		fmt.Println("Stringifying Entity")
+		fmt.Println(v)
 		if v == nil {
 			return "", nil
 		}
+
+		x := "{"
+
+		tmp := GeneralEntity{}
+		tmp.Load(v.Properties)
+
+		for _, prop := range v.Properties {
+			y, err := tmp.GetString(prop.Name)
+			if err != nil {
+				return "", fmt.Errorf("Error in stringify")
+			}
+			x += fmt.Sprintf("%s:%s, ", prop.Name, y)
+
+		}
+		x += "}"
+
+		return x, nil
 
 		if v.Key == nil {
 			return "", nil
 		}
 		return fmt.Sprintf("Entity with Kind: %s", v.Key.Kind), nil
+	case GeneralEntity:
+		x := "{"
+
+		for key, prop := range v {
+			y, err := v.GetString(key)
+			if err != nil {
+				return "", fmt.Errorf("Error in stringify")
+			}
+			x += fmt.Sprintf("%s:%s, ", prop.Name, y)
+
+		}
+		x += "}"
+
+		return x, nil
+
 	case nil:
 		return "NULL", nil
 	case []interface{}:
