@@ -158,7 +158,7 @@ func (ge GeneralEntity) GetValue(prop OutputProperty) (interface{}, error) {
 func (ge GeneralEntity) GetString(name string) (string, error) {
 	prop, ok := ge[name]
 	if !ok {
-		return "", nil
+		return "-", nil
 	}
 	value, err := ge.GetValue(prop)
 

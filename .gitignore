@@ -8,6 +8,8 @@
 # misc
 .DS_Store
 *.pem
+view/*_templ.go
+view/*_templ.txt
 
 
 bin
