@@ -9,6 +9,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"math"
 	"net/http"
 	"os"
 )
@@ -21,15 +22,54 @@ type APIServer struct {
 func (as *APIServer) ServeTempl(w http.ResponseWriter, r *http.Request) error {
 
 	entity := r.URL.Query().Get("entity")
-	cursor := r.URL.Query().Get("cursor")
 	sortKey := r.URL.Query().Get("sortKey")
+	page := r.URL.Query().Get("page")
 
 	as.vm.UpdateKinds(r.Context())
 
 	if entity != "" {
 		as.vm.SelectKind(entity)
 	}
-	as.vm.GetData(r.Context(), cursor, sortKey)
+
+	if as.vm.Selected == "" {
+
+		view.Show(as.vm).Render(r.Context(), w)
+		return nil
+	}
+
+	if sortKey != "" {
+		as.vm.ToggleSortDirection()
+		as.vm.Cursor = ""
+		as.vm.SortKey = sortKey
+
+	}
+	if page == "prev" && as.vm.HasPrevPage {
+		as.vm.CurrentPage -= 1
+		as.vm.HasPrevPage = as.vm.CurrentPage > 1
+
+	} else if page == "next" {
+		if as.vm.CurrentPage == as.vm.Pages {
+			as.vm.GetNewPage(r.Context())
+		} else {
+
+			as.vm.CurrentPage += 1
+
+		}
+	} else if len(as.vm.Entities) == 0 {
+		as.vm.GetNewPage(r.Context())
+
+	}
+	View := as.vm.Entities
+	if len(View) > 0 {
+		start := (as.vm.CurrentPage - 1) * as.vm.PageSize
+		end := int(math.Min(float64(as.vm.CurrentPage*as.vm.PageSize), float64(len(as.vm.Entities))))
+		View = View[start:end]
+
+		as.vm.Headers = service.GetTableHeaders(View)
+		as.vm.View = View
+	}
+
+	as.vm.DebugInfo()
 
 	view.Show(as.vm).Render(r.Context(), w)
 	return nil
@@ -98,6 +138,7 @@ func main() {
 	router := http.NewServeMux()
 
 	router.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
+	router.Handle("/vendor-js/", http.StripPrefix("/vendor-js/", http.FileServer(http.Dir("./vendor-js"))))
 
 	router.HandleFunc("/", makeHttpHandler(as.ServeTempl))
 	http.ListenAndServe("localhost:8080", router)

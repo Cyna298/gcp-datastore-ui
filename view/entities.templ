@@ -2,6 +2,7 @@ package view
 
 import "backend/viewmodel"
 import "fmt"
+import "strconv"
 
 templ Table(vm *viewmodel.TableViewModel) {
 <table class="border-separate border-spacing-0">
@@ -34,7 +35,7 @@ templ Table(vm *viewmodel.TableViewModel) {
 		</tr>
 	</thead>
 	<tbody>
-		for _,e:=range vm.Entities {
+		for _,e:=range vm.View {
 		<tr>
 			for _,h:=range vm.Headers {
 			<td
@@ -63,13 +64,27 @@ templ Entities(vm *viewmodel.TableViewModel) {
 		<div class="mt-8 flow-root">
 			<div class="-mx-4 -my-2 sm:-mx-6 lg:-mx-8 overflow-auto overview-scroll-bar">
 				<div class="inline-block min-w-full py-2 align-middle">
-					@Table(vm)
-					<div class="flex space-x-2 items-center mt-2">
-						<button class="px-3 py-1 bg-blue-100 rounded-md text-sm text-blue-800"
-							hx-get={ fmt.Sprintf("/?cursor=%s", vm.Cursor) }
+					<div class="h-[70vh] overflow-auto">
+						@Table(vm)
+					</div>
+					<div class="flex space-x-2 items-center mt-2 text-white">
+						<button class="px-3 py-1 bg-blue-100 rounded-md text-sm text-blue-800 disabled:opacity-50"
+							hx-get="/?page=prev" disabled?={ !vm.HasPrevPage }
+							hx-trigger="click" hx-swap="innerHTML" hx-target="#viewport">
+							Previous
+						</button>
+						<button class="px-3 py-1 bg-blue-100 rounded-md text-sm text-blue-800 disabled:opacity-50"
+							hx-get="/?page=next" disabled?={ !vm.HasNextPage }
 							hx-trigger="click" hx-swap="innerHTML" hx-target="#viewport">
 							Next
 						</button>
+						<p>
+							Rows: { strconv.Itoa( vm.RowCount()) }
+						</p>
+						<p>
+							Page: { strconv.Itoa( vm.CurrentPage) } of { strconv.Itoa(
+							vm.Pages) }
+						</p>
 					</div>
 				</div>
 			</div>

@@ -15,8 +15,13 @@ type TableViewModel struct {
 	client        *datastore.Client
 	Headers       []service.TableHeader
 	Entities      []service.GeneralEntity
+	View          []service.GeneralEntity
 	Cursor        string
 	PageSize      int
+	HasNextPage   bool
+	HasPrevPage   bool
+	CurrentPage   int
+	Pages         int
 	SortKey       string
 	SortDirection string
 }
@@ -24,7 +29,8 @@ type TableViewModel struct {
 func NewTableViewModel(c *datastore.Client) *TableViewModel {
 	return &TableViewModel{
 		client:   c,
-		PageSize: 100,
+		PageSize: 12,
+		Cursor:   "",
 	}
 
 }
@@ -42,6 +48,7 @@ func (vm *TableViewModel) UpdateKinds(ctx context.Context) error {
 
 func (vm *TableViewModel) SelectKind(kind string) error {
 	vm.Selected = kind
+	vm.Reset()
 	return nil
 
 }
@@ -57,51 +64,52 @@ func (vm *TableViewModel) ToggleSortDirection() {
 
 }
 
-func (vm *TableViewModel) GetData(ctx context.Context, cursor string, sortKey string) error {
+func (vm *TableViewModel) RowCount() int {
+	return len(vm.Entities)
+}
+
+func (vm *TableViewModel) Reset() {
+	vm.Cursor = ""
+	vm.SortKey = ""
+	vm.SortDirection = ""
+	vm.Entities = nil
+	vm.CurrentPage = 0
+	vm.Pages = 0
+	vm.HasPrevPage = false
+	vm.HasNextPage = true
+
+}
+
+func (vm *TableViewModel) DebugInfo() {
+
+	fmt.Println("Selected", vm.Selected)
+	fmt.Println("Cursor", vm.Cursor)
+	fmt.Println("CurrentPage", vm.CurrentPage)
+	fmt.Println("PageSize", vm.PageSize)
+	fmt.Println("Pages", vm.Pages)
+	fmt.Println("SortKey", vm.SortKey)
+	fmt.Println("SortDirection", vm.SortDirection)
+
+}
+
+func (vm *TableViewModel) GetNewPage(ctx context.Context) error {
+	fmt.Println("Getting new page")
 	if vm.Selected == "" {
 		return fmt.Errorf("No kind selected")
 	}
 
-	if sortKey != "" {
-		vm.ToggleSortDirection()
-
-	}
-
-	entities, nextCursor, err := service.GetAllEntities(ctx, vm.client, vm.Selected, sortKey, vm.SortDirection, vm.PageSize, cursor)
+	entities, nextCursor, err := service.GetAllEntities(ctx, vm.client, vm.Selected, vm.SortKey, vm.SortDirection, vm.PageSize, vm.Cursor)
 
 	if err != nil {
 		return err
 	}
 
-	headers := make(map[string]service.TableHeader)
-
-	for _, e := range entities {
-		for _, x := range e {
-			if _, ok := headers[x.Name]; !ok {
-				headers[x.Name] = service.TableHeader{
-					Name: x.Name,
-					Type: x.TypeOf,
-				}
-
-			}
-
-		}
-	}
-	headerValues := make([]service.TableHeader, len(headers))
-	i := 0
-	for _, e := range headers {
-		if e.Name == "key" {
-			headerValues[0] = e
-		} else {
-			headerValues[i+1] = e
-			i += 1
-		}
-	}
-
-	vm.Entities = entities
-	vm.Headers = headerValues
+	vm.Entities = append(vm.Entities, entities...)
 	vm.Cursor = nextCursor
 
-	vm.SortKey = sortKey
+	vm.CurrentPage += 1
+	vm.Pages += 1
+	vm.HasPrevPage = vm.CurrentPage > 1
+	vm.HasNextPage = nextCursor != ""
 	return nil
 }

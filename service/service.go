@@ -77,12 +77,10 @@ func (x *GeneralEntity) Load(ps []datastore.Property) error {
 		if e, ok := p.Value.(*datastore.Entity); ok {
 			// Convert nested entity to GeneralEntity
 
-			fmt.Println("Start NESTED Entity------------------------------\n")
 			nestedEntity := GeneralEntity{}
 			nestedEntity.Load(e.Properties)
 			value = nestedEntity
 
-			fmt.Println("End NESTED Entity------------------------------\n")
 		}
 		(*x)[p.Name] = OutputProperty{
 			Name:    p.Name,
@@ -91,15 +89,6 @@ func (x *GeneralEntity) Load(ps []datastore.Property) error {
 			Indexed: !p.NoIndex,
 		}
 
-		fmt.Println("Start Entity------------------------------\n")
-		fmt.Println(p.Name)
-		fmt.Println(
-
-			fmt.Sprintf("%T", value),
-		)
-		fmt.Println(value)
-
-		fmt.Println("End---------------------------------\n")
 	}
 
 	return nil
@@ -116,12 +105,6 @@ func (x *GeneralEntity) Save() ([]datastore.Property, error) {
 }
 
 func (ge GeneralEntity) GetValue(prop OutputProperty) (interface{}, error) {
-	fmt.Println("Start------------------------------\n")
-	fmt.Println(prop.Name)
-	fmt.Println(prop.TypeOf)
-	fmt.Println(prop.Value)
-
-	fmt.Println("End---------------------------------\n")
 
 	switch prop.TypeOf {
 	case "int64":
@@ -146,7 +129,6 @@ func (ge GeneralEntity) GetValue(prop OutputProperty) (interface{}, error) {
 	case "*datastore.Entity":
 		return prop.Value.(*datastore.Entity), nil
 	case "service.GeneralEntity":
-		fmt.Println(prop.Value)
 		return prop.Value.(GeneralEntity), nil
 	case "<nil>":
 		return nil, nil
@@ -162,13 +144,6 @@ func (ge GeneralEntity) GetString(name string) (string, error) {
 	}
 	value, err := ge.GetValue(prop)
 
-	fmt.Println("\nGET STRING Start------------------------------")
-	fmt.Println(name)
-	fmt.Println(value)
-	fmt.Println(err)
-	fmt.Println(fmt.Sprintf("%T", value))
-
-	fmt.Println("GET STRING End---------------------------------\n")
 	if err != nil {
 		return "", err
 	}
@@ -194,9 +169,6 @@ func (ge GeneralEntity) GetString(name string) (string, error) {
 	case []byte:
 		return string(v), nil // May need to encode to base64 if binary data
 	case *datastore.Entity:
-		fmt.Println("Getting string for Entity")
-
-		fmt.Println(value.(*datastore.Entity))
 		return "NOT IMPLEMENTED FOR ENTITY", nil
 		// return fmt.Sprintf("Entity with Kind: %s", v.Key.Kind), nil // Simplistic representation
 	case GeneralEntity:
@@ -226,38 +198,28 @@ func (ge GeneralEntity) GetString(name string) (string, error) {
 func stringifyInterface(v interface{}) (string, error) {
 	switch v := v.(type) {
 	case int64:
-		fmt.Println("INT")
 		return strconv.FormatInt(v, 10), nil
 	case bool:
 
-		fmt.Println("BOOL")
 		return strconv.FormatBool(v), nil
 	case string:
 
-		fmt.Println("STR")
 		return v, nil
 	case float64:
 
-		fmt.Println("FL")
 		return strconv.FormatFloat(v, 'f', -1, 64), nil
 	case *datastore.Key:
 
-		fmt.Println("KEy")
 		return v.String(), nil
 	case time.Time:
 
-		fmt.Println("Time")
 		return v.Format(time.RFC3339), nil
 	case datastore.GeoPoint:
-		fmt.Println("point")
 		return fmt.Sprintf("Lat: %f, Lng: %f", v.Lat, v.Lng), nil
 	case []byte:
 
-		fmt.Println("Byte")
 		return base64.StdEncoding.EncodeToString(v), nil
 	case *datastore.Entity:
-		fmt.Println("Stringifying Entity")
-		fmt.Println(v)
 		if v == nil {
 			return "", nil
 		}
@@ -302,13 +264,41 @@ func stringifyInterface(v interface{}) (string, error) {
 		return "NULL", nil
 	case []interface{}:
 
-		fmt.Println("INTE")
 		return "Yee", nil
 	default:
 
-		fmt.Println("DEF")
 		return "", fmt.Errorf("unsupported type %s in array", reflect.TypeOf(v))
 	}
+}
+
+func GetTableHeaders(entities []GeneralEntity) []TableHeader {
+
+	headers := make(map[string]TableHeader)
+
+	for _, e := range entities {
+		for _, x := range e {
+			if _, ok := headers[x.Name]; !ok {
+				headers[x.Name] = TableHeader{
+					Name: x.Name,
+					Type: x.TypeOf,
+				}
+
+			}
+
+		}
+	}
+	headerValues := make([]TableHeader, len(headers))
+	i := 0
+	for _, e := range headers {
+		if e.Name == "key" {
+			headerValues[0] = e
+		} else {
+			headerValues[i+1] = e
+			i += 1
+		}
+	}
+	return headerValues
+
 }
 
 // GetAllEntities retrieves entities of a specific kind from Datastore
