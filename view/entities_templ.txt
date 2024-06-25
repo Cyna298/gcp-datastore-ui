@@ -1,0 +1,11 @@
+<table class=\"border-separate border-spacing-0\"><thead><tr>
+<th scope=\"col\" class=\"sticky top-0 z-10 border-b border-gray-300  bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm  text-white backdrop-blur backdrop-filter sm:pl-6 lg:pl-8\">
+</th>
+</tr></thead> <tbody>
+<tr>
+<td class=\"whitespace-nowrap border-b border-gray-200 py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-6 lg:pl-8 max-w-96 overflow-auto overview-scroll-bar\">
+</td>
+</tr>
+<!-- More people... --></tbody></table>
+<html class=\"bg-gray-900\"><head><title>Datastore</title><link rel=\"stylesheet\" href=\"/public/styles.css\"><link rel=\"stylesheet\" href=\"/public/global.css\"></head><body><div class=\"px-4 sm:px-6 lg:px-8\"><div class=\"mt-8 flow-root\"><div class=\"-mx-4 -my-2 sm:-mx-6 lg:-mx-8 overflow-auto overview-scroll-bar\"><div class=\"inline-block min-w-full py-2 align-middle\">
+</div></div></div></div></body></html>

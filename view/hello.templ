@@ -1,0 +1,61 @@
+package view
+
+import "fmt"
+
+import "backend/viewmodel"
+
+var handle = templ.NewOnceHandle()
+
+templ Show(vm *viewmodel.TableViewModel) {
+	<html class="bg-gray-900">
+		<head>
+			<title>DaS</title>
+			<link rel="stylesheet" href="/public/styles.css"/>
+			<link rel="stylesheet" href="/public/global.css"/>
+		</head>
+		@handle.Once() {
+			<script src="vendor-js/htmx.min.js"></script>
+			<script src="js/common.js"></script>
+		}
+		<body id="viewport">
+			<div class="p-8">
+				<div class="flex gap-2 overflow-auto overview-scroll-bar">
+					for _, item := range vm.Kinds {
+						if vm.Selected !=item {
+							<button
+								class="px-3 py-1 bg-indigo-800 rounded-md text-sm text-white"
+								hx-get={ fmt.Sprintf("/?entity=%s", item) }
+								hx-trigger="click"
+								hx-swap="innerHTML"
+								hx-target="#viewport"
+							>{ item }</button>
+						} else {
+							<button
+								class="px-3 py-1 bg-blue-100 rounded-md text-sm text-blue-800"
+								hx-get={ fmt.Sprintf("/?entity=%s", item) }
+								hx-trigger="click"
+								hx-swap="innerHTML"
+								hx-target="#viewport"
+							>{ item }</button>
+						}
+					}
+				</div>
+				<div class="p-2"></div>
+				if vm.Selected!="" {
+					@Entities(vm)
+				} else {
+					<div id="response">
+						<div
+							class="rounded-lg p-16 text-4xl bg-indigo-800 text-white grid place-items-center h-96 mt-4 opacity-30"
+						>
+							<div>
+								No Data
+							</div>
+						</div>
+					</div>
+				}
+			</div>
+			<div id="snackbar">Some text some message..</div>
+		</body>
+	</html>
+}
