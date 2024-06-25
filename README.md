@@ -1,17 +1,13 @@
-# GCP Datastore Emulator UI
-
 <img src="assets/gcp.png" height="50" align="right"/>
 <!-- Badges -->
 
 ![License](https://img.shields.io/badge/license-MIT-blue)
-![Version](https://img.shields.io/badge/version-0.0.1-blue)
+![Version](https://img.shields.io/badge/version-0.0.2-blue)
 ![Go Version](https://img.shields.io/badge/go-1.21.5-blue)
-![Next.js Version](https://img.shields.io/badge/next.js-14.0.4-blue)
+![Templ Version](https://img.shields.io/badge/templ-latest-blue)
+![Htmx Version](https://img.shields.io/badge/htmx-latest-blue)
 
-A user-friendly, efficient, and modern UI for the GCP Datastore Emulator, designed for ease of use without compromising on resource efficiency.
-
-
-
+A user-friendly, efficient, and modern UI for the GCP Datastore Emulator, designed for ease of use without compromising on resource efficiency. This project leans on server-side rendering to simplify the architecture and focus on minimalistic and efficient design.
 
 <!-- Table of Contents -->
 
@@ -29,24 +25,21 @@ A user-friendly, efficient, and modern UI for the GCP Datastore Emulator, design
 
 ## Introduction
 
-GCP Datastore Emulator UI is an open-source project aimed at providing a simple yet powerful user interface for the GCP Datastore Emulator. It's built with a focus on minimal resource usage, combining Golang and Next.js to serve a static site from the same server. This approach not only simplifies deployment but also ensures low overhead.
+GCP Datastore Emulator UI is an open-source project aimed at providing a simple yet powerful user interface for the GCP Datastore Emulator. It's built with a focus on minimal resource usage, combining `Golang`, `Templ`, and `HTMX` to serve a server-side rendered application. This approach ensures low overhead and adheres to the principles of minimalism and resource efficiency.
 
 ## Key Features
 
-- **Lightweight Design**: Optimized for minimal resource consumption.
-- **Basic Table View**: With type badges for easy comprehension.
-- **Server-side Sorting**: Easily sort your data for better analysis.
-- **Server-side Pagination**: Navigate through large datasets with ease.
+- **Lightweight and Server-side Rendered Design**: Focused on minimal resource consumption without reliance on client-side frameworks.
+- **Server-side Sorting and Pagination**: Navigate and manage large datasets efficiently.
+- **MVVM Architecture Inspiration**: Maintaining all state on the backend to simplify the client-side as a pure view representation.
 
 ## Motivation
 
-This project is born out of the need for a practical and non-resource intensive UI for the GCP Datastore Emulator. While many solutions exist, they often compromise on either simplicity or efficiency. The goal with this implementation is to strike the perfect balance, with a keen eye on resource optimization. The ability to edit entities directly in the UI sets this project apart from existing solutions.
-
----
+This project is designed to address the need for an efficient, yet simple UI for the GCP Datastore Emulator that does not sacrifice performance for simplicity. By moving away from traditional web app frameworks and embracing a more desktop-app-like architecture, it offers a unique approach to managing and interacting with datastore entities.
 
 ## Getting Started
 
-Getting up and running with the GCP Datastore Emulator UI is straightforward. Follow these steps to build your own binaries using our `Makefile`.
+Follow these steps to set up the GCP Datastore Emulator UI:
 
 ### Building Your Own Binaries
 
@@ -58,32 +51,22 @@ Getting up and running with the GCP Datastore Emulator UI is straightforward. Fo
     cd gcp-datastore-ui
    ```
 
-2. **Use the Makefile**
+2. **Install Dependencies**
 
-   We've provided a Makefile for easy building of the binaries. Make sure to update the `PROJECT_ID` variable in the Makefile to match your GCP project ID and `EMU_PORT` to match the port on which your emulator is running. You can also update the `PORT` variable to change the port on which the UI will be served.
-
-   Navigate to the project's root directory and run:
-
-   ```bash
-   make setup
-   ```
-
-   This will compile the backend and frontend parts of the application and copy the frontend build to the backend's `out` directory.
+   A `Makefile` will be provided in the future. For now download `templ`, `tailwind-cli` and `air`
 
 3. **Run the Application**  
-   After the build is complete, you can start the application using:
+   Initiate the application using:
 
    ```bash
    make run-backend
    ```
 
-   This will start the backend server and the frontend interface.
+   This launches the backend server, rendering the frontend through server-side templating.
 
-### Future Plans for Standalone Releases
+### Future Plans
 
-We're working towards providing standalone releases of the GCP Datastore Emulator UI. These releases will offer a simplified, one-step setup process, making it easier than ever to get started. Stay tuned for updates!
-
----
+- **TUI Interface**: Exploring a terminal user interface to completely move away from the web aspect.
 
 ## Demo
 
@@ -91,9 +74,9 @@ We're working towards providing standalone releases of the GCP Datastore Emulato
 
 ## Roadmap
 
-We're on an exciting journey to enhance the GCP Datastore Emulator UI. Here's a glance at what we've achieved and what we're planning next:
+Future developments and current features include:
 
-- [x] **Basic Table View with Type Badges**  
+- [ ] **Basic Table View with Type Badges**  
        _Efficient display of data with clear type indication._
 
 - [x] **Sorting**  
@@ -102,29 +85,32 @@ We're on an exciting journey to enhance the GCP Datastore Emulator UI. Here's a 
 - [x] **Pagination**  
        _Navigate through large datasets more efficiently._
 
-- [x] **Improved Build Process**  
+- [ ] **Improved Build Process**  
        _Streamlining the build process for easier setup._
 
-- [ ] **V0.1.0 Release**  
+- [x] **V0.1.0 Release**  
        _Our first major milestone on the horizon._
 
 - [ ] **Edit Form / Detail View**  
        _Intuitive UI for directly editing entities._
 
-- [ ] **Nested Entities**  
+- [x] **Nested Entities**  
        _Handling complex data structures with ease._
 
 - [ ] **Entity Navigation**  
        _Seamless navigation between related entities._
 
-- [ ] **Simplified Table**  
+- [x] **Simplified Table**  
        _Enhancing performance with a new table implementation._
 
----
+- [ ] **TUI Based Interface**
+      Experimenting with BubbleTea for a text-based user interface.
+- [x] **MVVM Architecture**:
+      All state managed on the backend, with the frontend as a reflection of this state.
 
 ## Contributing
 
-We welcome contributions! Please open an issue or submit a pull request to propose changes.
+Contributions are welcome! Feel free to open an issue or submit a pull request to suggest changes.
 
 ## License
 
@@ -132,6 +118,4 @@ This project is licensed under the [MIT License](https://github.com/Cyna298/gcp-
 
 ## Support and Contact
 
-For support, feature requests, or any queries, please [open an issue](https://github.com/Cyna298/gcp-datastore-ui/issues)
-
----
+For support, feature requests, or queries, please [open an issue](https://github.com/Cyna298/gcp-datastore-ui/issues).
