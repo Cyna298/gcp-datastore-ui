@@ -4,93 +4,132 @@ import "backend/viewmodel"
 import "fmt"
 import "strconv"
 
+script copyToClipboard(value string, err error) {
+if(err){
+return
+}
+navigator.clipboard.writeText(value);
+showSnackbar("Copied")
+
+}
+
 templ Table(vm *viewmodel.TableViewModel) {
-<table class="border-separate border-spacing-0">
-	<thead>
-		<tr>
-			for _,header:=range vm.Headers {
-			<th scope="col"
-				class="sticky top-0 z-10 border-b border-gray-300  bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm  text-white backdrop-blur backdrop-filter sm:pl-6 lg:pl-8">
-				<button hx-get={ fmt.Sprintf("/?sortKey=%s", header.Name) } hx-trigger="click"
-					hx-swap="innerHTML" hx-target="#viewport" class="flex space-x-2 items-center">
-					<div>
-						{ header.Name }
-					</div>
-					if vm.SortKey== header.Name {
-					if vm.SortDirection == "" {
-					<div></div>
-					} else if vm.SortDirection == "desc" {
-					<div>
-						↓
-					</div>
-					} else {
-					<div>
-						↑
-					</div>
+	<table class="border-separate border-spacing-0">
+		<thead>
+			<tr>
+				for _,header:=range vm.Headers {
+					<th
+						scope="col"
+						class="sticky top-0 z-10 border-b border-gray-300 py-1 px-4  text-left text-sm  text-white bg-gray-900"
+					>
+						<button
+							hx-get={ fmt.Sprintf("/?sortKey=%s", header.Name) }
+							hx-trigger="click"
+							hx-swap="innerHTML"
+							hx-target="#viewport"
+							class="flex space-x-2 items-center"
+						>
+							<div>
+								{ header.Name }
+							</div>
+							if vm.SortKey== header.Name {
+								if vm.SortDirection == "" {
+									<div></div>
+								} else if vm.SortDirection == "desc" {
+									<div>
+										↓
+									</div>
+								} else {
+									<div>
+										↑
+									</div>
+								}
+							}
+						</button>
+					</th>
+				}
+			</tr>
+		</thead>
+		<tbody>
+			for _,e:=range vm.View {
+				<tr>
+					for _,h:=range vm.Headers {
+						<td
+							class="whitespace-nowrap border-b border-gray-200 py-1 pl-4 pr-3 text-xs text-white sm:pl-6 lg:pl-8"
+						>
+							<div class=" flex space-x-2 items-center group/item ">
+								<div class="max-w-96 overflow-auto overview-scroll-bar">
+									{ e.GetString(h.Name) }
+								</div>
+								<button
+									class="py-0.5 px-1 rounded-md text-xs bg-blue-300 text-blue-900 invisible group-hover/item:visible"
+									onClick={ copyToClipboard(e.GetString(h.Name)) }
+									id="copyButton"
+								>
+									Copy
+								</button>
+							</div>
+						</td>
 					}
-					}
-				</button>
-			</th>
+				</tr>
 			}
-		</tr>
-	</thead>
-	<tbody>
-		for _,e:=range vm.View {
-		<tr>
-			for _,h:=range vm.Headers {
-			<td
-				class="whitespace-nowrap border-b border-gray-200 py-1 pl-4 pr-3 text-xs text-white sm:pl-6 lg:pl-8 max-w-96 overflow-auto overview-scroll-bar">
-				{ e.GetString(h.Name) }
-			</td>
-			}
-		</tr>
-		}
-		<!-- More people... -->
-	</tbody>
-</table>
+			<!-- More people... -->
+		</tbody>
+	</table>
 }
 
 templ Entities(vm *viewmodel.TableViewModel) {
-<html class="bg-gray-900">
-
-<head>
-	<title>Datastore</title>
-	<link rel="stylesheet" href="/public/styles.css" />
-	<link rel="stylesheet" href="/public/global.css" />
-</head>
-
-<body>
-	<div class="px-4 sm:px-6 lg:px-8">
-		<div class="mt-8 flow-root">
-			<div class="-mx-4 -my-2 sm:-mx-6 lg:-mx-8 overflow-auto overview-scroll-bar">
-				<div class="inline-block min-w-full py-2 align-middle">
-					<div class="h-[70vh] overflow-auto">
-						@Table(vm)
-					</div>
-					<div class="flex space-x-2 items-center mt-2 text-white">
-						<button class="px-3 py-1 bg-blue-100 rounded-md text-sm text-blue-800 disabled:opacity-50"
-							hx-get="/?page=prev" disabled?={ !vm.HasPrevPage }
-							hx-trigger="click" hx-swap="innerHTML" hx-target="#viewport">
-							Previous
-						</button>
-						<button class="px-3 py-1 bg-blue-100 rounded-md text-sm text-blue-800 disabled:opacity-50"
-							hx-get="/?page=next" disabled?={ !vm.HasNextPage }
-							hx-trigger="click" hx-swap="innerHTML" hx-target="#viewport">
-							Next
-						</button>
-						<p>
-							Rows: { strconv.Itoa( vm.RowCount()) }
-						</p>
-						<p>
-							Page: { strconv.Itoa( vm.CurrentPage) } of { strconv.Itoa(
+	<html class="bg-gray-900">
+		<head>
+			<title>Datastore</title>
+			<link rel="stylesheet" href="/public/styles.css"/>
+			<link rel="stylesheet" href="/public/global.css"/>
+		</head>
+		<body>
+			<div class="px-4 sm:px-6 lg:px-8">
+				<div class="mt-8 flow-root">
+					<div
+						id="table-container"
+						class="-mx-4 -my-2 sm:-mx-6 lg:-mx-8 overflow-auto overview-scroll-bar"
+						onscroll="bodyScroll()"
+					>
+						<div class="inline-block min-w-full py-2 align-middle">
+							<div class="h-[70vh] overflow-auto">
+								@Table(vm)
+							</div>
+							<div class="flex space-x-2 items-center mt-2 text-white">
+								<button
+									class="px-3 py-1 bg-blue-100 rounded-md text-sm text-blue-800 disabled:opacity-50"
+									hx-get="/?page=prev"
+									disabled?={ !vm.HasPrevPage }
+									hx-trigger="click"
+									hx-swap="innerHTML"
+									hx-target="#viewport"
+								>
+									Previous
+								</button>
+								<button
+									class="px-3 py-1 bg-blue-100 rounded-md text-sm text-blue-800 disabled:opacity-50"
+									hx-get="/?page=next"
+									disabled?={ !vm.HasNextPage }
+									hx-trigger="click"
+									hx-swap="innerHTML"
+									hx-target="#viewport"
+								>
+									Next
+								</button>
+								<p>
+									Rows: { strconv.Itoa( vm.RowCount()) }
+								</p>
+								<p>
+									Page: { strconv.Itoa( vm.CurrentPage) } of { strconv.Itoa(
 							vm.Pages) }
-						</p>
+								</p>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-	</div>
-</body>
-
-</html>
+		</body>
+	</html>
 }

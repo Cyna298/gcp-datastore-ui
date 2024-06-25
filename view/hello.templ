@@ -15,6 +15,7 @@ templ Show(vm *viewmodel.TableViewModel) {
 		</head>
 		@handle.Once() {
 			<script src="vendor-js/htmx.min.js"></script>
+			<script src="js/common.js"></script>
 		}
 		<body id="viewport">
 			<div class="p-8">
@@ -54,6 +55,7 @@ templ Show(vm *viewmodel.TableViewModel) {
 					</div>
 				}
 			</div>
+			<div id="snackbar">Some text some message..</div>
 		</body>
 	</html>
 }
