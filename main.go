@@ -39,7 +39,6 @@ func (as *APIServer) ServeTempl(w http.ResponseWriter, r *http.Request) error {
 
 	if sortKey != "" {
 		as.vm.ToggleSortDirection()
-		as.vm.Cursor = ""
 		as.vm.SortKey = sortKey
 
 	}

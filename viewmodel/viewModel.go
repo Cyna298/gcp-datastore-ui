@@ -54,13 +54,14 @@ func (vm *TableViewModel) SelectKind(kind string) error {
 }
 
 func (vm *TableViewModel) ToggleSortDirection() {
+	newSortDirection := ""
 	if vm.SortDirection == "" {
-		vm.SortDirection = "desc"
+		newSortDirection = "desc"
 	} else if vm.SortDirection == "desc" {
-		vm.SortDirection = "asc"
-	} else {
-		vm.SortDirection = ""
+		newSortDirection = "asc"
 	}
+	vm.Reset()
+	vm.SortDirection = newSortDirection
 
 }
 
