@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -290,13 +291,20 @@ func GetTableHeaders(entities []GeneralEntity) []TableHeader {
 	headerValues := make([]TableHeader, len(headers))
 	i := 0
 	for _, e := range headers {
-		if e.Name == "key" {
-			headerValues[0] = e
-		} else {
-			headerValues[i+1] = e
-			i += 1
-		}
+		headerValues[i] = e
+		i += 1
+
 	}
+	sort.Slice(headerValues, func(i, j int) bool {
+		if headerValues[i].Name == "key" {
+			return true
+
+		}
+		if headerValues[j].Name == "key" {
+			return false
+		}
+		return headerValues[i].Name < headerValues[j].Name
+	})
 	return headerValues
 
 }

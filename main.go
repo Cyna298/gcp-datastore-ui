@@ -138,6 +138,7 @@ func main() {
 
 	router.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("./public"))))
 	router.Handle("/vendor-js/", http.StripPrefix("/vendor-js/", http.FileServer(http.Dir("./vendor-js"))))
+	router.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir("./js"))))
 
 	router.HandleFunc("/", makeHttpHandler(as.ServeTempl))
 	http.ListenAndServe("localhost:8080", router)

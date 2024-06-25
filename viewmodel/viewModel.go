@@ -29,7 +29,7 @@ type TableViewModel struct {
 func NewTableViewModel(c *datastore.Client) *TableViewModel {
 	return &TableViewModel{
 		client:   c,
-		PageSize: 12,
+		PageSize: 50,
 		Cursor:   "",
 	}
 
